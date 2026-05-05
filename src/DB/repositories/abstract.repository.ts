@@ -5,7 +5,10 @@ import {
   SaveOptions,
   Types,
   QueryFilter,
+  AnyKeys,
+  AnyObject,
 } from 'mongoose';
+
 export interface IPaginate {
   page: number;
   limit?: number;
@@ -35,6 +38,7 @@ export type updateArgs<TDocument> = {
 
 export abstract class AbstractRepository<TDocument> {
   protected constructor(public readonly model: Model<TDocument>) {}
+
   // ==========================================
   // 🛡️ SaaS Security Engine: Inject Company ID
   // ==========================================
@@ -96,7 +100,7 @@ export abstract class AbstractRepository<TDocument> {
   }
 
   async create(
-    document: Partial<TDocument>,
+    document: AnyKeys<TDocument> & AnyObject,
     options?: SaveOptions,
   ): Promise<TDocument> {
     const doc = new this.model(document);
@@ -133,6 +137,7 @@ export abstract class AbstractRepository<TDocument> {
     let query = this.model.findOneAndDelete(tenantFilter, options);
     return query.exec();
   }
+
   // أضف هذه الدالة داخل الـ AbstractRepository
   get modelInstance() {
     return this.model;

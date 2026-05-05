@@ -9,6 +9,7 @@ import { DealRepository } from 'src/DB/repositories/deal.repository';
 import { LeadRepository } from 'src/DB/repositories/lead.repository';
 import { CreateDealDto } from './dto/create-deal.dto';
 import { UpdateDealStageDto } from './dto/update-deal-stage.dto';
+import { DealStage } from 'src/DB/enums/deal.enum';
 
 @Injectable()
 export class DealService {
@@ -36,13 +37,12 @@ export class DealService {
     }
 
     // 2. إنشاء الصفقة
-    // اجعل كائن الإنشاء هكذا
     return await this.dealRepository.create({
       ...createDealDto,
       company_id: companyId,
       created_by: createdBy,
-      stage: 'negotiation' as any,
-    } as any); // إضافة as any هنا تحل المشكلة فوراً
+      stage: DealStage.negotiation,
+    });
   }
 
   async findAll(

@@ -6,6 +6,7 @@ import { LeadRepository } from 'src/DB/repositories/lead.repository';
 import { PropertyRepository } from 'src/DB/repositories/property.repository';
 import { CreateMatchDto } from './dto/create-match.dto';
 import { UpdateMatchStatusDto } from './dto/update-match-status.dto';
+import { MatchStatus } from 'src/DB/models/match.model';
 
 @Injectable()
 export class MatchService {
@@ -43,7 +44,7 @@ export class MatchService {
         ) {
           // التأكد من عدم وجود مطابقة سابقة لهذا العميل مع هذا العقار تحديداً
           const existingMatch = await this.matchRepository.findOne({
-            filter: { lead_id: lead._id, property_id: property._id },
+            filter: { lead: lead._id, property: property._id }, // تصحيح أسماء الحقول
             companyId,
           });
 
@@ -52,12 +53,12 @@ export class MatchService {
             const matchScore = lead.budget === property.price ? 100 : 85;
 
             await this.matchRepository.create({
-              lead_id: lead._id,
-              property_id: property._id,
+              lead: lead._id, // تصحيح أسماء الحقول
+              property: property._id, // تصحيح أسماء الحقول
               company_id: companyId,
-              match_score: matchScore,
-              status: 'pending',
-            } as any); // إضافة as any هنا
+              score: matchScore, // تصحيح اسم الحقل
+              status: MatchStatus.suggested, // استخدام الـ Enum
+            });
             newMatchesCount++;
           }
         }
@@ -77,10 +78,10 @@ export class MatchService {
     limit: number = 10,
   ) {
     return await this.matchRepository.findAll({
-      filter: { lead_id: leadId },
-      populate: 'property_id', // جلب بيانات العقار كاملة
+      filter: { lead: leadId }, // تصحيح اسم الحقل
+      populate: 'property', // تصحيح مسار الـ Populate
       paginate: { page, limit },
-      sort: { match_score: -1 }, // ترتيب من النسبة الأعلى للأقل
+      sort: { score: -1 }, // تصحيح اسم الحقل
       companyId,
     });
   }

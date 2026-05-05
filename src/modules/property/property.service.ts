@@ -21,7 +21,7 @@ export class PropertyService {
       ...createPropertyDto,
       company_id: companyId,
       created_by: createdBy,
-    } as any);
+    });
   }
 
   async findAll(
