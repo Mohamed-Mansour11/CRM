@@ -70,6 +70,9 @@ export class Lead extends Document {
   @Prop({ type: String, default: 'new' })
   status!: string; // new, contacted, qualified, lost
 
+  @Prop({ type: String })
+  lostReason?: string;
+
   // 🚀 الحذف الوهمي لمنع فقدان البيانات المرتبطة بالحسابات
   @Prop({ default: false, index: true })
   isDeleted!: boolean;
