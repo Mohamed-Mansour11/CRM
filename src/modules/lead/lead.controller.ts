@@ -7,7 +7,11 @@ import {
   Param,
   Delete,
   Query,
+  UseInterceptors,
+  UploadedFile,
+  BadRequestException,
 } from '@nestjs/common';
+import { FileInterceptor } from '@nestjs/platform-express';
 import { LeadService } from './lead.service';
 import { CreateLeadDto } from './dto/create-lead.dto';
 import { UpdateLeadDto } from './dto/update-lead.dto';
@@ -22,7 +26,7 @@ export class LeadController {
   constructor(private readonly leadService: LeadService) {}
 
   @Post()
-  @Roles(Role.company_admin, Role.sales_manager, Role.sales_agent)
+  @Roles(Role.company_admin, Role.sales_manager, Role.sales_agent, Role.agent)
   async create(@Body() createLeadDto: CreateLeadDto, @User() user: JwtPayload) {
     return await this.leadService.create(
       createLeadDto,
@@ -31,25 +35,54 @@ export class LeadController {
     );
   }
 
+  // 🚀 مسار استيراد الإكسيل
+  @Post('import')
+  @Roles(Role.company_admin, Role.sales_manager) // المدراء فقط من يرفعون الداتا
+  @UseInterceptors(FileInterceptor('file'))
+  async importLeads(
+    @UploadedFile() file: Express.Multer.File,
+    @User('company_id') companyId: Types.ObjectId,
+    @User('sub') userId: Types.ObjectId,
+  ) {
+    if (!file) {
+      throw new BadRequestException('Please provide an Excel file');
+    }
+
+    const allowedMimeTypes = [
+      'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', // .xlsx
+      'application/vnd.ms-excel', // .xls
+    ];
+    if (!allowedMimeTypes.includes(file.mimetype)) {
+      throw new BadRequestException(
+        'Only Excel files are allowed (.xlsx, .xls)',
+      );
+    }
+
+    return await this.leadService.importFromExcel(
+      file.buffer,
+      companyId,
+      userId,
+    );
+  }
+
   @Get()
-  @Roles(Role.company_admin, Role.sales_manager, Role.sales_agent)
+  @Roles(Role.company_admin, Role.sales_manager, Role.sales_agent, Role.agent)
   async findAll(
     @User() user: JwtPayload,
     @Query('page') page: number = 1,
     @Query('limit') limit: number = 10,
   ) {
-    // الواجهة ستستقبل البيانات مقسمة (Pagination) تلقائياً
-    return await this.leadService.findAll(user.company_id, page, limit);
+    return await this.leadService.findAll(user, page, limit);
   }
 
   @Get(':id')
-  @Roles(Role.company_admin, Role.sales_manager, Role.sales_agent)
+  @Roles(Role.company_admin, Role.sales_manager, Role.sales_agent, Role.agent)
   async findOne(@Param('id') id: Types.ObjectId, @User() user: JwtPayload) {
     return await this.leadService.findOne(id, user.company_id);
   }
 
   @Patch(':id')
-  @Roles(Role.company_admin, Role.sales_manager)
+  @Roles(Role.company_admin, Role.sales_manager, Role.sales_agent, Role.agent)
   async update(
     @Param('id') id: Types.ObjectId,
     @Body() updateLeadDto: UpdateLeadDto,
@@ -59,7 +92,7 @@ export class LeadController {
   }
 
   @Delete(':id')
-  @Roles(Role.company_admin) // صلاحية الحذف للمدراء فقط
+  @Roles(Role.company_admin, Role.sales_manager)
   async remove(@Param('id') id: Types.ObjectId, @User() user: JwtPayload) {
     return await this.leadService.softDelete(id, user.company_id);
   }

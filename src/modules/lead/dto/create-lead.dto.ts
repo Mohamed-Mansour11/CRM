@@ -1,4 +1,5 @@
 import {
+  IsArray,
   IsEmail,
   IsEnum,
   IsMongoId,
@@ -7,61 +8,91 @@ import {
   IsOptional,
   IsString,
 } from 'class-validator';
+import { Type } from 'class-transformer';
 import { Types } from 'mongoose';
+// افترض أننا أضفنا هذه الـ Enums الجديدة في ملف lead.enum.ts
 import {
   LeadSource,
-  LeadStatus,
   PropertyType,
-  Purpose,
+  MoveInTimeframe,
+  UrgencyLevel,
 } from 'src/DB/enums/lead.enum';
 
 export class CreateLeadDto {
-  @IsString()
-  @IsNotEmpty()
-  fullName!: string;
+  // --- Step 1: Contact Info ---
+  @IsString({ message: 'First name must be a string' })
+  @IsNotEmpty({ message: 'First name is required' })
+  firstName!: string;
+
+  @IsString({ message: 'Last name must be a string' })
+  @IsNotEmpty({ message: 'Last name is required' })
+  lastName!: string;
 
   @IsString()
   @IsNotEmpty()
-  phone!: string;
+  phoneNumber!: string;
 
   @IsEmail()
   @IsOptional()
-  email?: string;
+  emailAddress?: string;
+
+  @IsString()
+  @IsOptional()
+  nationality?: string;
 
   @IsEnum(LeadSource)
   @IsOptional()
-  source?: LeadSource;
+  leadSource?: LeadSource;
 
-  @IsEnum(LeadStatus)
-  @IsOptional()
-  status?: LeadStatus;
-
-  // --- التفضيلات (Preferences) ---
-  @IsNumber()
-  @IsOptional()
-  budgetMin?: number;
-
-  @IsNumber()
-  @IsOptional()
-  budgetMax?: number;
-
+  // --- Step 2: Preferences ---
   @IsEnum(PropertyType)
   @IsOptional()
   propertyType?: PropertyType;
 
+  @IsString()
+  @IsOptional()
+  preferredLocation?: string;
+
   @IsNumber()
   @IsOptional()
-  bedroomsNeeded?: number;
+  @Type(() => Number)
+  bedrooms?: number;
+
+  @IsNumber()
+  @IsOptional()
+  @Type(() => Number)
+  bathrooms?: number;
+
+  @IsArray()
+  @IsString({ each: true })
+  @IsOptional()
+  mustHaveAmenities?: string[];
+
+  // --- Step 3: Budget ---
+  @IsNumber()
+  @IsOptional()
+  @Type(() => Number)
+  minBudget?: number;
+
+  @IsNumber()
+  @IsOptional()
+  @Type(() => Number)
+  maxBudget?: number;
+
+  @IsEnum(MoveInTimeframe)
+  @IsOptional()
+  moveInTimeframe?: MoveInTimeframe;
+
+  @IsEnum(UrgencyLevel)
+  @IsOptional()
+  urgencyLevel?: UrgencyLevel;
 
   @IsString()
   @IsOptional()
-  preferredArea?: string;
+  additionalNotes?: string;
 
-  @IsEnum(Purpose)
-  @IsOptional()
-  purpose?: Purpose;
-
+  // --- Step 4: Assignment ---
   @IsMongoId()
   @IsOptional()
-  assignedAgent?: Types.ObjectId; // الموظف المسؤول (الوسيط)
+  assignedAgent?: Types.ObjectId;
 }

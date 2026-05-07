@@ -77,7 +77,21 @@ export class UserService {
     return team;
   }
 
-  // 3. إيقاف موظف (Deactivate) بدلاً من حذفه (للحفاظ على تاريخ الصفقات الخاصة به)
+  // 🚀 3. دالة جديدة لجلب موظفي المبيعات لتعيين العملاء إليهم
+  async getSalesAgents(companyId: Types.ObjectId) {
+    const agents = await this._UserRepository.findAll({
+      companyId,
+      filter: {
+        // نستخدم $in لجلب أي مستخدم يعمل في قسم المبيعات لتعيين الليد له
+        role: { $in: [Role.sales_agent, Role.agent, Role.sales_manager] },
+        isActive: true, // لضمان عدم تعيين عميل لموظف حسابه متوقف
+      },
+      select: 'fullName _id role', // أضفنا role لنتمكن من عرض المسمى الوظيفي تحت اسمه في الواجهة كما في صورتك (مثلاً: Agent أو Senior Agent)
+    });
+    return agents;
+  }
+
+  // 4. إيقاف موظف (Deactivate) بدلاً من حذفه (للحفاظ على تاريخ الصفقات الخاصة به)
   async toggleEmployeeStatus(
     employeeId: Types.ObjectId,
     companyId: Types.ObjectId,

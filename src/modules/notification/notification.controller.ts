@@ -13,7 +13,7 @@ export class NotificationController {
   @Get()
   @Roles(Role.company_admin, Role.manager, Role.agent, Role.data_entry)
   async getMyNotifications(
-    @User('_id') userId: Types.ObjectId,
+    @User('sub') userId: Types.ObjectId,
     @User('company_id') companyId: Types.ObjectId,
   ) {
     return this.notificationService.getUserNotifications(userId, companyId);
@@ -23,7 +23,7 @@ export class NotificationController {
   @Roles(Role.company_admin, Role.manager, Role.agent, Role.data_entry)
   async markAsRead(
     @Param('id', ParseObjectIdPipe) notificationId: Types.ObjectId,
-    @User('_id') userId: Types.ObjectId,
+    @User('sub') userId: Types.ObjectId,
     @User('company_id') companyId: Types.ObjectId,
   ) {
     return this.notificationService.markAsRead(

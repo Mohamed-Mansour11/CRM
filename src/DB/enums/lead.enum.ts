@@ -30,3 +30,18 @@ export enum PropertyType {
   commercial = 'commercial',
   land = 'land',
 }
+
+// الـ Enums الجديدة التي تم إضافتها لحل الخطأ
+export enum MoveInTimeframe {
+  immediately = 'immediately',
+  one_to_three_months = '1-3 months',
+  three_to_six_months = '3-6 months',
+  six_to_twelve_months = '6-12 months',
+  one_plus_year = '1+ year',
+}
+
+export enum UrgencyLevel {
+  low = 'low',
+  medium = 'medium',
+  high = 'high',
+}

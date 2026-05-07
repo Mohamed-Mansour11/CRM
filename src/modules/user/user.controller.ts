@@ -17,7 +17,7 @@ export class UserController {
   async createEmployee(
     @Body() data: CreateEmployeeDto,
     @User('company_id') companyId: Types.ObjectId,
-    @User('_id') currentUserId: Types.ObjectId,
+    @User('sub') currentUserId: Types.ObjectId,
   ) {
     return this.userService.createEmployee(data, companyId, currentUserId);
   }
@@ -26,6 +26,13 @@ export class UserController {
   @Roles(Role.company_admin, Role.manager)
   async getTeam(@User('company_id') companyId: Types.ObjectId) {
     return this.userService.getTeam(companyId);
+  }
+
+  // 🚀 إضافة الـ Endpoint الجديدة لجلب موظفي المبيعات من أجل الـ Dropdown
+  @Get('agents')
+  // يمكن تركها بدون @Roles ليتمكن أي مستخدم مسجل بالشركة من رؤية القائمة وتعيين الليد
+  async getSalesAgents(@User('company_id') companyId: Types.ObjectId) {
+    return this.userService.getSalesAgents(companyId);
   }
 
   @Patch(':id/status')

@@ -27,7 +27,7 @@ export class VisitController {
   async create(
     @Body() data: CreateVisitDto,
     @User('company_id') companyId: Types.ObjectId,
-    @User('_id') currentUserId: Types.ObjectId,
+    @User('sub') currentUserId: Types.ObjectId,
   ) {
     return this.visitService.create(data, companyId, currentUserId);
   }

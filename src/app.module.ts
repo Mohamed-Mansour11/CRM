@@ -15,7 +15,7 @@ import { ScheduleModule } from '@nestjs/schedule';
 import * as Joi from 'joi';
 import * as path from 'path';
 
-// استيراد الموديولات الخاصة بنا
+// 1. استيراد الموديولات الخاصة بنا (القديمة والجديدة)
 import { AuthModule } from './modules/auth/auth.module';
 import { LeadModule } from './modules/lead/lead.module';
 import { BranchModule } from './modules/branch/branch.module';
@@ -23,6 +23,18 @@ import { ProjectModule } from './modules/project/project.module';
 import { TasksModule } from './modules/tasks/tasks.module';
 import { HealthModule } from './modules/health/health.module';
 import { CloudinaryModule } from './modules/cloudinary/cloudinary.module';
+
+// 🚀 الموديولات التي أضفناها لحل مشكلة 404
+import { CompanyModule } from './modules/company/company.module';
+import { UserModule } from './modules/user/user.module';
+import { DealModule } from './modules/deal/deal.module';
+import { PropertyModule } from './modules/property/property.module';
+import { MatchModule } from './modules/match/match.module';
+import { NotificationModule } from './modules/notification/notification.module';
+import { PaymentModule } from './modules/payment/payment.module';
+import { VisitModule } from './modules/visit/visit.module';
+import { ActivityModule } from './modules/activity/activity.module';
+import { AnalyticsModule } from './modules/analytics/analytics.module';
 
 // استيراد الحراس (Guards) لتطبيقهم على مستوى النظام
 import { JwtAuthGuard } from './common/guards/jwt-auth.guard';
@@ -106,7 +118,7 @@ import { RolesGuard } from './common/guards/roles.guard';
     // 7. تفعيل المهام المجدولة (Cron Jobs)
     ScheduleModule.forRoot(),
 
-    // 8. تسجيل موديولات النظام الأساسية
+    // 8. 🚀 تسجيل كل الموديولات ليتعرف عليها السيرفر
     AuthModule,
     LeadModule,
     BranchModule,
@@ -114,6 +126,16 @@ import { RolesGuard } from './common/guards/roles.guard';
     TasksModule,
     HealthModule,
     CloudinaryModule,
+    CompanyModule, // <-- تم الإضافة
+    UserModule, // <-- تم الإضافة
+    DealModule, // <-- تم الإضافة
+    PropertyModule, // <-- تم الإضافة
+    MatchModule, // <-- تم الإضافة
+    NotificationModule, // <-- تم الإضافة
+    PaymentModule, // <-- تم الإضافة
+    VisitModule, // <-- تم الإضافة
+    ActivityModule, // <-- تم الإضافة
+    AnalyticsModule, // <-- تم الإضافة
   ],
   providers: [
     // تطبيق حماية JWT و Roles على كل مسارات النظام افتراضياً

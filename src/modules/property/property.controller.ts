@@ -36,7 +36,7 @@ export class PropertyController {
     @UploadedFiles()
     files: { media?: Express.Multer.File[]; floorPlan?: Express.Multer.File[] },
     @User('company_id') companyId: Types.ObjectId,
-    @User('_id') userId: Types.ObjectId,
+    @User('sub') userId: Types.ObjectId,
   ) {
     // التأكد من أن files ليس undefined لتجنب أخطاء Multer
     const safeFiles = files || { media: [], floorPlan: [] };

@@ -1,23 +1,18 @@
 import { Module } from '@nestjs/common';
-import { MongooseModule } from '@nestjs/mongoose';
 import { AnalyticsService } from './analytics.service';
 import { AnalyticsController } from './analytics.controller';
 
-// استيراد الـ Schemas المطلوبة للإحصائيات
-import { LeadModelName, LeadSchema } from 'src/DB/models/lead.model';
-import { DealModelName, DealSchema } from 'src/DB/models/deal.model';
-import {
-  PropertyModelName,
-  PropertySchema,
-} from 'src/DB/models/property.model';
+// 🚀 استيراد الموديولات التي توفر الـ Repositories المطلوبة
+import { LeadModule } from '../lead/lead.module';
+import { DealModule } from '../deal/deal.module';
+import { PropertyModule } from '../property/property.module';
 
 @Module({
   imports: [
-    MongooseModule.forFeature([
-      { name: LeadModelName, schema: LeadSchema },
-      { name: DealModelName, schema: DealSchema },
-      { name: PropertyModelName, schema: PropertySchema },
-    ]),
+    // بمجرد استيراد هذه الموديولات، سيتعرف AnalyticsModule على المستودعات الخاصة بها
+    LeadModule,
+    DealModule,
+    PropertyModule,
   ],
   controllers: [AnalyticsController],
   providers: [AnalyticsService],

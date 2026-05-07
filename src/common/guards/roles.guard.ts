@@ -6,36 +6,36 @@ import {
 } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
 import { ROLES_KEY } from '../decorators/roles.decorator';
-// تأكد من أن مسار الاستيراد أدناه يطابق ملف الـ Enum الخاص بك
-// import { Role } from 'src/DB/enums/user.enum';
+// 1. تفعيل الاستيراد لربط الحارس بالـ Enum
+import { Role } from 'src/DB/enums/user.enum';
+// يُفضل أيضاً استيراد الواجهة لضمان نوع المستخدم
+import { JwtPayload } from '../interfaces/jwt-payload.interface';
 
 @Injectable()
 export class RolesGuard implements CanActivate {
   constructor(private reflector: Reflector) {}
 
   canActivate(context: ExecutionContext): boolean {
-    // قراءة الصلاحيات المطلوبة للمسار من المزخرف @Roles()
-    const requiredRoles = this.reflector.getAllAndOverride<string[]>(
-      ROLES_KEY,
-      [context.getHandler(), context.getClass()],
-    );
+    // 2. استخدام Role[] بدلاً من string[]
+    const requiredRoles = this.reflector.getAllAndOverride<Role[]>(ROLES_KEY, [
+      context.getHandler(),
+      context.getClass(),
+    ]);
 
-    // إذا لم يكن هناك صلاحيات محددة للمسار، اسمح بالمرور
     if (!requiredRoles || requiredRoles.length === 0) {
       return true;
     }
 
-    // استخراج بيانات المستخدم من الطلب (والتي تم حقنها مسبقاً عبر JwtAuthGuard)
     const request = context.switchToHttp().getRequest();
-    const user = request.user;
+    // 3. إخبار TypeScript بنوع المستخدم لتجنب أخطاء النوع
+    const user = request.user as JwtPayload;
 
-    // إذا لم يكن هناك مستخدم أو لم يكن لديه صلاحية مسجلة، ارفض الطلب
     if (!user || !user.role) {
       throw new ForbiddenException('Access Denied: User role not found.');
     }
 
-    // التحقق مما إذا كان دور المستخدم موجوداً ضمن قائمة الأدوار المسموح لها
-    const hasRole = requiredRoles.includes(user.role);
+    // 4. التحقق الآن يتم بأمان كامل (Enum مع Enum)
+    const hasRole = requiredRoles.includes(user.role as Role);
 
     if (!hasRole) {
       throw new ForbiddenException(
@@ -43,6 +43,6 @@ export class RolesGuard implements CanActivate {
       );
     }
 
-    return true; // السماح بالمرور
+    return true;
   }
 }

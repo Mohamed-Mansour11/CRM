@@ -15,12 +15,12 @@ export class PropertyService {
   async create(
     createPropertyDto: CreatePropertyDto,
     companyId: Types.ObjectId,
-    createdBy: Types.ObjectId,
+    userId: Types.ObjectId, // نستقبل الـ userId من الكنترولر
   ) {
     return await this.propertyRepository.create({
       ...createPropertyDto,
       company_id: companyId,
-      created_by: createdBy,
+      listedByAgent: userId, // 🚀 التعديل السحري: غيرنا الاسم ليتطابق مع الداتا بيز
     });
   }
 
@@ -30,7 +30,7 @@ export class PropertyService {
     limit: number = 10,
   ) {
     return await this.propertyRepository.findAll({
-      filter: { isDeleted: false },
+      filter: { isDeleted: { $ne: true } },
       paginate: { page, limit },
       sort: { createdAt: -1 },
       companyId, // 🚀 الأمان الإجباري: حقن معرف الشركة
